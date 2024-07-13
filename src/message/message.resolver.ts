@@ -21,6 +21,8 @@ import {
   LikeMessageDto,
   ResolveMessageDto,
   ReactionDto,
+  UpdateTagsDto,
+  GetMessagesByTagsDto,
 } from './models/message.dto';
 import { MessageLogic } from './message.logic';
 import {
@@ -168,6 +170,24 @@ export class MessageResolver {
   @ResolveField()
   text(@Parent() message: ChatMessage): string {
     return this.safeguardingService.clean(message.text);
+  }
+
+  // Added methods for tags
+  @Mutation(() => ChatMessage)
+  @UseGuards(GqlAuthGuard)
+  async addOrUpdateTags(
+    @Args('updateTagsDto') updateTagsDto: UpdateTagsDto,
+    @AuthenticatedUser() authenticatedUser: IAuthenticatedUser,
+  ): Promise<ChatMessage> {
+    return await this.messageLogic.addOrUpdateTags(updateTagsDto, authenticatedUser);
+  }
+
+  @Query(() => PaginatedChatMessages)
+  @UseGuards(GqlAuthGuard)
+  async getMessagesByTags(
+    @Args('getMessagesByTagsDto') getMessagesByTagsDto: GetMessagesByTagsDto,
+  ): Promise<PaginatedChatMessages> {
+    return await this.messageLogic.getMessagesByTags(getMessagesByTagsDto);
   }
 }
 
